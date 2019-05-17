@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package beans;
+
+message SendMail {
+    string To = 1; //`form:"to"`
+    string Subject = 2; //`form:"subject"`
+    string Content = 3; //`form:"content"`
+}
