@@ -5,6 +5,5 @@ package beans;
 message Redis {
     string Key = 1; //`json:"key,omitempty"`
     string Value = 2; //`json:"value,omitempty"`
-    int64 Interval = 3; //`json:"interval,omitempty"`
-    string Hkey = 4; //`json:"hkey,omitempty"`
+    string Hkey = 3; //`json:"hkey,omitempty"`
 }
