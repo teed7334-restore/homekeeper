@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"log"
+	"net/http"
 
 	"../beans"
 	"../env"
@@ -17,6 +18,7 @@ func SendMail(c *gin.Context) {
 		log.Println(err)
 	}
 	doSendMail(params)
+	c.JSON(http.StatusOK, gin.H{"status": "true"})
 }
 
 //doSendMail 寄發通知郵件

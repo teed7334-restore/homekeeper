@@ -2,15 +2,6 @@
 // source: sendMail.proto
 // DO NOT EDIT!
 
-/*
-Package beans is a generated protocol buffer package.
-
-It is generated from these files:
-	sendMail.proto
-
-It has these top-level messages:
-	SendMail
-*/
 package beans
 
 import proto "github.com/golang/protobuf/proto"
@@ -22,22 +13,16 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the proto package it is being compiled against.
-// A compilation error at this line likely means your copy of the
-// proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
-
 type SendMail struct {
-	To      string ` protobuf:"bytes,1,opt,name=To"        json:"To,omitempty"  form:"to"`
-	Subject string ` protobuf:"bytes,2,opt,name=Subject"   json:"Subject,omitempty"  form:"subject"`
-	Content string ` protobuf:"bytes,3,opt,name=Content"   json:"Content,omitempty"  form:"content"`
+	To      string ` protobuf:"bytes,1,opt,name=To"         json:"To,omitempty"        form:"to"`
+	Subject string ` protobuf:"bytes,2,opt,name=Subject"    json:"Subject,omitempty"   form:"subject"`
+	Content string ` protobuf:"bytes,3,opt,name=Content"    json:"Content,omitempty"   form:"content"`
 }
 
 func (m *SendMail) Reset()                    { *m = SendMail{} }
 func (m *SendMail) String() string            { return proto.CompactTextString(m) }
 func (*SendMail) ProtoMessage()               {}
-func (*SendMail) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (*SendMail) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
 
 func (m *SendMail) GetTo() string {
 	if m != nil {
@@ -64,9 +49,9 @@ func init() {
 	proto.RegisterType((*SendMail)(nil), "beans.SendMail")
 }
 
-func init() { proto.RegisterFile("sendMail.proto", fileDescriptor0) }
+func init() { proto.RegisterFile("sendMail.proto", fileDescriptor1) }
 
-var fileDescriptor0 = []byte{
+var fileDescriptor1 = []byte{
 	// 106 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2b, 0x4e, 0xcd, 0x4b,
 	0xf1, 0x4d, 0xcc, 0xcc, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4d, 0x4a, 0x4d, 0xcc,
