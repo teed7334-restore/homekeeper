@@ -1,8 +1,8 @@
 package route
 
 import (
-	"homekeeper/controllers"
-	"homekeeper/env"
+	"github.com/teed7334-restore/homekeeper/controllers"
+	"github.com/teed7334-restore/homekeeper/env"
 
 	"github.com/gin-gonic/gin"
 )

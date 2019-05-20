@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"homekeeper/beans"
+	"github.com/teed7334-restore/homekeeper/beans"
 
-	"homekeeper/env"
+	"github.com/teed7334-restore/homekeeper/env"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/gin-gonic/gin"

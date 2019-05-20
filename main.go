@@ -1,8 +1,8 @@
 package main
 
 import (
-	"homekeeper/env"
-	"homekeeper/route"
+	"github.com/teed7334-restore/homekeeper/env"
+	"github.com/teed7334-restore/homekeeper/route"
 )
 
 var cfg = env.GetEnv()
