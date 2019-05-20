@@ -4,8 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"../beans"
-	"../env"
+	"homekeeper/beans"
+	"homekeeper/env"
+
 	"github.com/gin-gonic/gin"
 	"gopkg.in/gomail.v2"
 )

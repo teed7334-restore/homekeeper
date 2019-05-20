@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./env"
-	"./route"
+	"homekeeper/env"
+	"homekeeper/route"
 )
 
 var cfg = env.GetEnv()

@@ -1,8 +1,9 @@
 package route
 
 import (
-	"../controllers"
-	"../env"
+	"homekeeper/controllers"
+	"homekeeper/env"
+
 	"github.com/gin-gonic/gin"
 )
 
