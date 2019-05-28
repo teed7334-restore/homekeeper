@@ -4,6 +4,7 @@ package beans;
 
 message SendMail {
     string To = 1; //`form:"to"`
-    string Subject = 2; //`form:"subject"`
-    string Content = 3; //`form:"content"`
+    string Cc = 2; //`form:"cc"`
+    string Subject = 3; //`form:"subject"`
+    string Content = 4; //`form:"content"`
 }

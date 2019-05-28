@@ -28,6 +28,9 @@ func doSendMail(params *beans.SendMail) {
 	mail := gomail.NewMessage()
 	mail.SetHeader("From", cfg.Mail.From)
 	mail.SetHeader("To", params.GetTo())
+	if "" != params.GetCc() {
+		mail.SetHeader("Cc", params.GetCc())
+	}
 	mail.SetHeader("Subject", params.GetSubject())
 	mail.SetBody("text/html", params.GetContent())
 	send := gomail.NewPlainDialer(cfg.Mail.Host, cfg.Mail.Port, cfg.Mail.User, cfg.Mail.Password)
