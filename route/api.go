@@ -26,5 +26,6 @@ func API() *gin.Engine {
 	route.POST("/Redis/RPush", controllers.RPushRedis)
 	route.POST("/Redis/LSet", controllers.LSetRedis)
 	route.POST("/Redis/LRange", controllers.LRangeRedis)
+	route.POST("/PunchClock/CalcTime", controllers.CalcTime)
 	return route
 }

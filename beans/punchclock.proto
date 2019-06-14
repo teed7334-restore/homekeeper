@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package beans;
+
+message Punchclock {
+    TimeStruct Begin = 7; //`json:"begin"`
+    TimeStruct End = 8; //`json:"end"`
+}
+
+message TimeStruct {
+    string Year = 1; //`json:"year"`
+    string Month = 2; //`json:"month"`
+    string Day = 3; //`json:"day"`
+    string Hour = 4; //`json:"hour"`
+    string Minute = 5; //`json:"minute"`
+    string Second = 6; //`json:"second"`
+}

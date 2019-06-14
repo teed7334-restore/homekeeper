@@ -14,16 +14,16 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type SendMail struct {
-	To      string ` protobuf:"bytes,1,opt,name=To"           json:"To,omitempty"  form:"to"`
-	Cc      string ` protobuf:"bytes,2,opt,name=Cc"           json:"Cc,omitempty"  form:"cc"`
-	Subject string ` protobuf:"bytes,3,opt,name=Subject"      json:"Subject,omitempty"  form:"subject"`
-	Content string ` protobuf:"bytes,4,opt,name=Content"      json:"Content,omitempty"  form:"content"`
+	To      string ` protobuf:"bytes,1,opt,name=To"        json:"To,omitempty"     form:"to"`
+	Cc      string ` protobuf:"bytes,2,opt,name=Cc"        json:"Cc,omitempty"     form:"cc"`
+	Subject string ` protobuf:"bytes,3,opt,name=Subject"   json:"Subject,omitempty"  form:"subject"`
+	Content string ` protobuf:"bytes,4,opt,name=Content"   json:"Content,omitempty"  form:"content"`
 }
 
 func (m *SendMail) Reset()                    { *m = SendMail{} }
 func (m *SendMail) String() string            { return proto.CompactTextString(m) }
 func (*SendMail) ProtoMessage()               {}
-func (*SendMail) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (*SendMail) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *SendMail) GetTo() string {
 	if m != nil {
@@ -57,9 +57,9 @@ func init() {
 	proto.RegisterType((*SendMail)(nil), "beans.SendMail")
 }
 
-func init() { proto.RegisterFile("sendMail.proto", fileDescriptor1) }
+func init() { proto.RegisterFile("sendMail.proto", fileDescriptor2) }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor2 = []byte{
 	// 116 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2b, 0x4e, 0xcd, 0x4b,
 	0xf1, 0x4d, 0xcc, 0xcc, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4d, 0x4a, 0x4d, 0xcc,
