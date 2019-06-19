@@ -18,15 +18,15 @@ import (
 func CalcTime(c *gin.Context) {
 	params := getPunchclockParams(c)
 	beginYear := params.GetBegin().GetYear()
-	beginMonth := params.GetBegin().GetMonth()
-	beginDay := params.GetBegin().GetDay()
-	beginHour := params.GetBegin().GetHour()
-	beginMinute := params.GetBegin().GetMinute()
+	beginMonth := appendZero(params.GetBegin().GetMonth())
+	beginDay := appendZero(params.GetBegin().GetDay())
+	beginHour := appendZero(params.GetBegin().GetHour())
+	beginMinute := appendZero(params.GetBegin().GetMinute())
 	endYear := params.GetEnd().GetYear()
-	endMonth := params.GetEnd().GetMonth()
-	endDay := params.GetEnd().GetDay()
-	endHour := params.GetEnd().GetHour()
-	endMinute := params.GetEnd().GetMinute()
+	endMonth := appendZero(params.GetEnd().GetMonth())
+	endDay := appendZero(params.GetEnd().GetDay())
+	endHour := appendZero(params.GetEnd().GetHour())
+	endMinute := appendZero(params.GetEnd().GetMinute())
 
 	beginTime, _ := strconv.Atoi(beginHour + beginMinute)
 	endTime, _ := strconv.Atoi(endHour + endMinute)
@@ -43,8 +43,8 @@ func CalcTime(c *gin.Context) {
 		} else { //沒跨午休
 			diffHour, diffMinute = calcTime(beginHour, endHour, beginMinute, endMinute, false)
 		}
-		_beginMonth := appendZero(beginMonth)
-		_beginDay := appendZero(beginDay)
+		_beginMonth := beginMonth
+		_beginDay := beginDay
 		if isHoliday(beginYear, _beginMonth, _beginDay) {
 			diffDay = 0
 			diffHour = 0
@@ -59,7 +59,7 @@ func CalcTime(c *gin.Context) {
 			_diffHour, _diffMinute = calcTime(beginHour, "18", beginMinute, "0", false)
 		}
 		diffDay = calcDate(beginYear, beginMonth, beginDay, endYear, endMonth, endDay)
-		if endTime < 1200 { //有跨午休
+		if endTime > 1330 { //有跨午休
 			diffHour, diffMinute = calcTime("8", endHour, "30", endMinute, true)
 		} else { //沒跨午休
 			diffHour, diffMinute = calcTime("8", endHour, "30", endMinute, false)
@@ -120,10 +120,10 @@ func isHoliday(year string, month string, day string) bool {
 func calcDate(beginYear string, beginMonth string, beginDay string, endYear string, endMonth string, endDay string) int {
 	cfg := env.GetEnv()
 	diffDay := 0
-	_beginMonth := appendZero(beginMonth)
-	_beginDay := appendZero(beginDay)
-	_endMonth := appendZero(endMonth)
-	_endDay := appendZero(endDay)
+	_beginMonth := beginMonth
+	_beginDay := beginDay
+	_endMonth := endMonth
+	_endDay := endDay
 	checkTime := beginYear + "-" + _beginMonth + "-" + _beginDay + " 00:00:00"
 	begin, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
 	checkTime = endYear + "-" + _endMonth + "-" + _endDay + " 00:00:00"
