@@ -154,3 +154,18 @@ go get -u -v github.com/gin-gonic/gin
     "value": "0:5"
 }
 ```
+
+計算休假區間，中間會扣除午休九十分鐘 http://[Your Host Name]:8806/PunchClock/CalcTime
+```
+//HTTP Header需設定成Content-Type: application/json
+{
+  "begin":{"year":"2019","month":"6","day":"19","hour":"10","minute":"46"},
+  "end":{"year":"2019","month":"6","day":"25","hour":"18","minute":"0"}
+}
+```
+
+重新設定所有員工休假區間 http://[Your Host Name]:8806/PunchClock/ResetAllUseMinute
+```
+//HTTP Header需設定成Content-Type: application/json
+{}
+```

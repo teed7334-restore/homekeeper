@@ -14,9 +14,39 @@ import (
 	"github.com/teed7334-restore/homekeeper/models"
 )
 
+//ResetAllUseMinute 重新計算所有請假時間
+func ResetAllUseMinute(c *gin.Context) {
+	cfg := env.GetEnv()
+	models.SetUseMinuteToZero()
+	result := models.GetLeaveHistory()
+	for _, item := range result {
+		beginDateStr := item.Startdate.Format(cfg.TimeFormat)
+		beginDateStr = strings.Split(beginDateStr, " ")[0]
+		beginDateArr := strings.Split(beginDateStr, "-")
+		beginTimeArr := strings.Split(item.Starttime, ":")
+		endDateStr := item.Enddate.Format(cfg.TimeFormat)
+		endDateStr = strings.Split(endDateStr, " ")[0]
+		endDateArr := strings.Split(endDateStr, "-")
+		endTimeArr := strings.Split(item.Endtime, ":")
+		begin := &beans.TimeStruct{Year: beginDateArr[0], Month: beginDateArr[1], Day: beginDateArr[2], Hour: beginTimeArr[0], Minute: beginTimeArr[1], Second: "00"}
+		end := &beans.TimeStruct{Year: endDateArr[0], Month: endDateArr[1], Day: endDateArr[2], Hour: endTimeArr[0], Minute: endTimeArr[1], Second: "00"}
+		params := &beans.Punchclock{Begin: begin, End: end}
+		diffDay, diffHour, diffMinute := calcLeaveScope(params)
+		useMinute := diffDay*8*60 + diffHour*60 + diffMinute
+		models.SetUseMinute(useMinute, item.ID)
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "true"})
+}
+
 //CalcTime 計算時數
 func CalcTime(c *gin.Context) {
 	params := getPunchclockParams(c)
+	diffDay, diffHour, diffMinute := calcLeaveScope(params)
+	c.JSON(http.StatusOK, gin.H{"diffDay": diffDay, "diffHour": diffHour, "diffMinute": diffMinute})
+}
+
+//calcLeaveScope 計算休假區間主程式
+func calcLeaveScope(params *beans.Punchclock) (diffDay int, diffHour int, diffMinute int) {
 	beginYear := params.GetBegin().GetYear()
 	beginMonth := appendZero(params.GetBegin().GetMonth())
 	beginDay := appendZero(params.GetBegin().GetDay())
@@ -31,9 +61,9 @@ func CalcTime(c *gin.Context) {
 	beginTime, _ := strconv.Atoi(beginHour + beginMinute)
 	endTime, _ := strconv.Atoi(endHour + endMinute)
 
-	diffDay := 0
-	diffHour := 0
-	diffMinute := 0
+	diffDay = 0
+	diffHour = 0
+	diffMinute = 0
 
 	beginHour, beginMinute, endHour, endMinute = changeToLunchTime(beginTime, endTime, beginHour, beginMinute, endHour, endMinute)
 
@@ -68,7 +98,7 @@ func CalcTime(c *gin.Context) {
 		diffMinute = diffMinute + _diffMinute
 	}
 	diffDay, diffHour, diffMinute = setCarry(diffDay, diffHour, diffMinute)
-	c.JSON(http.StatusOK, gin.H{"diffDay": diffDay, "diffHour": diffHour, "diffMinute": diffMinute})
+	return diffDay, diffHour, diffMinute
 }
 
 //setCarry 設定進位
