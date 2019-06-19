@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -38,9 +39,9 @@ func CalcTime(c *gin.Context) {
 
 	if isSameDay(params) { //只請當天
 		if beginTime < 1200 && endTime > 1330 { //有跨午休
-			diffHour, diffMinute = calcTimeBlock(beginHour, endHour, beginMinute, endMinute, true)
+			diffHour, diffMinute = calcTime(beginHour, endHour, beginMinute, endMinute, true)
 		} else { //沒跨午休
-			diffHour, diffMinute = calcTimeBlock(beginHour, endHour, beginMinute, endMinute, false)
+			diffHour, diffMinute = calcTime(beginHour, endHour, beginMinute, endMinute, false)
 		}
 		_beginMonth := appendZero(beginMonth)
 		_beginDay := appendZero(beginDay)
@@ -53,33 +54,50 @@ func CalcTime(c *gin.Context) {
 		_diffHour := 0
 		_diffMinute := 0
 		if beginTime < 1200 { //有跨午休
-			_diffHour, _diffMinute = calcTimeBlock(beginHour, "18", beginMinute, "0", true)
+			_diffHour, _diffMinute = calcTime(beginHour, "18", beginMinute, "0", true)
 		} else { //沒跨午休
-			_diffHour, _diffMinute = calcTimeBlock(beginHour, "18", beginMinute, "0", false)
+			_diffHour, _diffMinute = calcTime(beginHour, "18", beginMinute, "0", false)
 		}
 		diffDay = calcDate(beginYear, beginMonth, beginDay, endYear, endMonth, endDay)
 		if endTime < 1200 { //有跨午休
-			diffHour, diffMinute = calcTimeBlock("8", endHour, "30", endMinute, true)
+			diffHour, diffMinute = calcTime("8", endHour, "30", endMinute, true)
 		} else { //沒跨午休
-			diffHour, diffMinute = calcTimeBlock("8", endHour, "30", endMinute, false)
+			diffHour, diffMinute = calcTime("8", endHour, "30", endMinute, false)
 		}
 		diffHour = diffHour + _diffHour
 		diffMinute = diffMinute + _diffMinute
 	}
+	diffDay, diffHour, diffMinute = setCarry(diffDay, diffHour, diffMinute)
 	c.JSON(http.StatusOK, gin.H{"diffDay": diffDay, "diffHour": diffHour, "diffMinute": diffMinute})
 }
 
+//setCarry 設定進位
+func setCarry(diffDay int, diffHour int, diffMinute int) (_diffDay int, _diffHour int, _diffMinute int) {
+	_diffDay = diffDay
+	_diffHour = diffHour
+	_diffMinute = diffMinute
+	_diffHour = diffMinute/60 + _diffHour
+	_diffMinute = diffMinute % 60
+	_diffDay = _diffHour/8 + _diffDay
+	_diffHour = _diffHour % 8
+	return _diffDay, _diffHour, _diffMinute
+}
+
+//getHoliday 取得休假日期
 func getHoliday() map[string]int {
 	cfg := env.GetEnv()
 	list := models.GetHoliday()
 	data := make(map[string]int)
 	for _, item := range list {
-		key := item.Date.Format(cfg.TimeFormat)
+		datetime := item.Date.Format(cfg.TimeFormat)
+		date := strings.Split(datetime, " ")[0]
+		key := date
 		data[key] = 1
 	}
 	return data
 }
 
+//appendZero 給不足二位數的數字前面加零
 func appendZero(value string) string {
 	if 2 > utf8.RuneCountInString(value) {
 		value = "0" + value
@@ -87,18 +105,18 @@ func appendZero(value string) string {
 	return value
 }
 
+//isHoliday 判斷是否為假期
 func isHoliday(year string, month string, day string) bool {
-	cfg := env.GetEnv()
 	list := getHoliday()
-	checkTime := year + "-" + month + "-" + day + " 00:00:00"
-	begin, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
-	_, ok := list[begin.Format(cfg.TimeFormat)]
+	checkTime := year + "-" + month + "-" + day
+	_, ok := list[checkTime]
 	if ok {
 		return true
 	}
 	return false
 }
 
+//calcDate 計算跨日天數
 func calcDate(beginYear string, beginMonth string, beginDay string, endYear string, endMonth string, endDay string) int {
 	cfg := env.GetEnv()
 	diffDay := 0
@@ -112,7 +130,10 @@ func calcDate(beginYear string, beginMonth string, beginDay string, endYear stri
 	end, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
 	if begin.Before(end) {
 		for {
-			if isHoliday(beginYear, _beginMonth, _beginDay) {
+			now := begin.Format(cfg.TimeFormat)
+			nowDate := strings.Split(now, " ")[0]
+			nowArr := strings.Split(nowDate, "-")
+			if isHoliday(nowArr[0], nowArr[1], nowArr[2]) {
 				add, _ := time.ParseDuration("24h")
 				begin = begin.Add(add)
 				continue
@@ -129,7 +150,8 @@ func calcDate(beginYear string, beginMonth string, beginDay string, endYear stri
 	return diffDay
 }
 
-func calcTimeBlock(beginHour string, endHour string, beginMinute string, endMinute string, haveLunchTime bool) (diffHour int, diffMinute int) {
+//calcTimeBlock 計算時間區間，並扣除午休
+func calcTime(beginHour string, endHour string, beginMinute string, endMinute string, haveLunchTime bool) (diffHour int, diffMinute int) {
 	_beginHour, _ := strconv.Atoi(beginHour)
 	_endHour, _ := strconv.Atoi(endHour)
 	_beginMinute, _ := strconv.Atoi(beginMinute)
@@ -144,6 +166,7 @@ func calcTimeBlock(beginHour string, endHour string, beginMinute string, endMinu
 	return diffHour, diffMinute
 }
 
+//changeToLunchTime 當請假起迄日為午休區間時，置換為午休結束
 func changeToLunchTime(beginTime int, endTime int, beginHour string, beginMinute string, endHour string, endMinute string) (string, string, string, string) {
 	if beginTime >= 1200 && beginTime <= 1330 { //當啟始時間於午休區間時
 		beginHour = "13"
@@ -156,12 +179,14 @@ func changeToLunchTime(beginTime int, endTime int, beginHour string, beginMinute
 	return beginHour, beginMinute, endHour, endMinute
 }
 
+//isSameDay 判斷二個時間區間是否為同一天
 func isSameDay(pc *beans.Punchclock) bool {
 	begin := pc.GetBegin().GetYear() + pc.GetBegin().GetMonth() + pc.GetBegin().GetDay()
 	end := pc.GetEnd().GetYear() + pc.GetEnd().GetMonth() + pc.GetEnd().GetDay()
 	return begin == end
 }
 
+//getPunchclockParams 取得HTTP POST帶過來之參數
 func getPunchclockParams(c *gin.Context) *beans.Punchclock {
 	params := &beans.Punchclock{}
 	err := c.BindJSON(params)
