@@ -84,15 +84,15 @@ func calcLeaveScope(params *beans.Punchclock) (diffDay int, diffHour int, diffMi
 		_diffHour := 0
 		_diffMinute := 0
 		if beginTime < 1200 { //有跨午休
-			_diffHour, _diffMinute = calcTime(beginHour, "18", beginMinute, "0", true)
+			_diffHour, _diffMinute = calcTime(beginHour, "18", beginMinute, "00", true)
 		} else { //沒跨午休
-			_diffHour, _diffMinute = calcTime(beginHour, "18", beginMinute, "0", false)
+			_diffHour, _diffMinute = calcTime(beginHour, "18", beginMinute, "00", false)
 		}
 		diffDay = calcDate(beginYear, beginMonth, beginDay, endYear, endMonth, endDay)
-		if endTime > 1330 { //有跨午休
-			diffHour, diffMinute = calcTime("8", endHour, "30", endMinute, true)
+		if endTime >= 1200 { //有跨午休
+			diffHour, diffMinute = calcTime("08", endHour, "30", endMinute, true)
 		} else { //沒跨午休
-			diffHour, diffMinute = calcTime("8", endHour, "30", endMinute, false)
+			diffHour, diffMinute = calcTime("08", endHour, "30", endMinute, false)
 		}
 		diffHour = diffHour + _diffHour
 		diffMinute = diffMinute + _diffMinute
@@ -108,7 +108,7 @@ func setCarry(diffDay int, diffHour int, diffMinute int) (_diffDay int, _diffHou
 	_diffMinute = diffMinute
 	_diffHour = diffMinute/60 + _diffHour
 	_diffMinute = diffMinute % 60
-	_diffDay = _diffHour/8 + _diffDay
+	_diffDay = _diffDay + _diffHour/8
 	_diffHour = _diffHour % 8
 	return _diffDay, _diffHour, _diffMinute
 }
@@ -163,18 +163,19 @@ func calcDate(beginYear string, beginMonth string, beginDay string, endYear stri
 			now := begin.Format(cfg.TimeFormat)
 			nowDate := strings.Split(now, " ")[0]
 			nowArr := strings.Split(nowDate, "-")
+			if begin.Equal(end) {
+				break
+			}
 			if isHoliday(nowArr[0], nowArr[1], nowArr[2]) {
 				add, _ := time.ParseDuration("24h")
 				begin = begin.Add(add)
 				continue
 			}
-			if !begin.Before(end) {
-				break
-			}
 			add, _ := time.ParseDuration("24h")
 			begin = begin.Add(add)
 			diffDay++
 		}
+		diffDay-- //去掉當天的加一
 	}
 
 	return diffDay
