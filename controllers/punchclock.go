@@ -21,16 +21,14 @@ func ResetAllUseMinute(c *gin.Context) {
 	result := models.GetLeaveHistory()
 	for _, item := range result {
 		beginDateStr := item.Startdate.Format(cfg.TimeFormat)
-		beginDateStr = strings.Split(beginDateStr, " ")[0]
-		beginDateArr := strings.Split(beginDateStr, "-")
-		beginTimeArr := strings.Split(item.Starttime, ":")
+		beginDateArr := strings.Split(beginDateStr, " ")
 		endDateStr := item.Enddate.Format(cfg.TimeFormat)
-		endDateStr = strings.Split(endDateStr, " ")[0]
-		endDateArr := strings.Split(endDateStr, "-")
-		endTimeArr := strings.Split(item.Endtime, ":")
-		begin := &beans.TimeStruct{Year: beginDateArr[0], Month: beginDateArr[1], Day: beginDateArr[2], Hour: beginTimeArr[0], Minute: beginTimeArr[1], Second: "00"}
-		end := &beans.TimeStruct{Year: endDateArr[0], Month: endDateArr[1], Day: endDateArr[2], Hour: endTimeArr[0], Minute: endTimeArr[1], Second: "00"}
-		params := &beans.Punchclock{Begin: begin, End: end}
+		endDateArr := strings.Split(endDateStr, " ")
+		checkTime := beginDateArr[0] + " " + item.Starttime
+		beginTime, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
+		checkTime = endDateArr[0] + " " + item.Endtime
+		endTime, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
+		params := combinTimeParams(beginTime, endTime)
 		diffDay, diffHour, diffMinute := calcLeaveScope(params)
 		useMinute := diffDay*8*60 + diffHour*60 + diffMinute
 		models.SetUseMinute(useMinute, item.ID)
@@ -38,11 +36,34 @@ func ResetAllUseMinute(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "true"})
 }
 
+//CallCalcTime 透過內部呼叫計算休假區間
+func CallCalcTime(onWorkTime time.Time, offWorkTime time.Time) (diffDay int, diffHour int, diffMinute int) {
+	params := combinTimeParams(onWorkTime, offWorkTime)
+	diffDay, diffHour, diffMinute = calcLeaveScope(params)
+	return diffDay, diffHour, diffMinute
+}
+
 //CalcTime 計算時數
 func CalcTime(c *gin.Context) {
 	params := getPunchclockParams(c)
 	diffDay, diffHour, diffMinute := calcLeaveScope(params)
 	c.JSON(http.StatusOK, gin.H{"diffDay": diffDay, "diffHour": diffHour, "diffMinute": diffMinute})
+}
+
+func combinTimeParams(beginTime time.Time, endTime time.Time) *beans.Punchclock {
+	cfg := env.GetEnv()
+	beginStr := beginTime.Format(cfg.TimeFormat)
+	beginArr := strings.Split(beginStr, " ")
+	beginDateArr := strings.Split(beginArr[0], "-")
+	beginTimeArr := strings.Split(beginArr[1], ":")
+	endStr := endTime.Format(cfg.TimeFormat)
+	endArr := strings.Split(endStr, " ")
+	endDateArr := strings.Split(endArr[0], "-")
+	endTimeArr := strings.Split(endArr[1], ":")
+	begin := &beans.TimeStruct{Year: beginDateArr[0], Month: beginDateArr[1], Day: beginDateArr[2], Hour: beginTimeArr[0], Minute: beginTimeArr[1], Second: beginTimeArr[2]}
+	end := &beans.TimeStruct{Year: endDateArr[0], Month: endDateArr[1], Day: endDateArr[2], Hour: endTimeArr[0], Minute: endTimeArr[1], Second: endTimeArr[2]}
+	params := &beans.Punchclock{Begin: begin, End: end}
+	return params
 }
 
 //calcLeaveScope 計算休假區間主程式
