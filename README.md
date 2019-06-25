@@ -169,3 +169,25 @@ go get -u -v github.com/gin-gonic/gin
 //HTTP Header需設定成Content-Type: application/json
 {}
 ```
+
+重新設定所有員工休假區間 http://[Your Host Name]:8806/GoMyPay/PayCreditCard
+```
+//HTTP Header需設定成Content-Type: application/json
+{
+  "Send_Type":"1",
+  "Pay_Mode_No":"2",
+  "Order_No":"2019062500001",
+  "Amount":"100",
+  "TransCode":"00",
+  "Buyer_Name":"Peter Cheng",
+  "Buyer_Mail":"teed7334@gmail.com",
+  "Buyer_Memo":"Omega 手錶",
+  "CardNo":"5509158011124600",
+  "ExpireDate":"2307",
+  "CVV":"811",
+  "TransMode":"1",
+  "Installment":"0",
+  "e_return":"1",
+  "Str_Check":""
+}
+```

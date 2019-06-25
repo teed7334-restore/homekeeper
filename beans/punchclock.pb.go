@@ -2,20 +2,6 @@
 // source: punchclock.proto
 // DO NOT EDIT!
 
-/*
-Package beans is a generated protocol buffer package.
-
-It is generated from these files:
-	punchclock.proto
-	redis.proto
-	sendMail.proto
-
-It has these top-level messages:
-	Punchclock
-	TimeStruct
-	Redis
-	SendMail
-*/
 package beans
 
 import proto "github.com/golang/protobuf/proto"
@@ -27,21 +13,15 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the proto package it is being compiled against.
-// A compilation error at this line likely means your copy of the
-// proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
-
 type Punchclock struct {
-	Begin *TimeStruct `protobuf:"bytes,7,opt,name=Begin"    json:"begin"`
-	End   *TimeStruct `protobuf:"bytes,8,opt,name=End"      json:"end"`
+	Begin *TimeStruct `protobuf:"bytes,7,opt,name=Begin"         json:"begin"`
+	End   *TimeStruct `protobuf:"bytes,8,opt,name=End"           json:"end"`
 }
 
 func (m *Punchclock) Reset()                    { *m = Punchclock{} }
 func (m *Punchclock) String() string            { return proto.CompactTextString(m) }
 func (*Punchclock) ProtoMessage()               {}
-func (*Punchclock) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (*Punchclock) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
 
 func (m *Punchclock) GetBegin() *TimeStruct {
 	if m != nil {
@@ -58,18 +38,18 @@ func (m *Punchclock) GetEnd() *TimeStruct {
 }
 
 type TimeStruct struct {
-	Year   string `protobuf:"bytes,1,opt,name=Year"     json:"year"`
-	Month  string `protobuf:"bytes,2,opt,name=Month"    json:"month"`
-	Day    string `protobuf:"bytes,3,opt,name=Day"      json:"day"`
-	Hour   string `protobuf:"bytes,4,opt,name=Hour"     json:"hour"`
-	Minute string `protobuf:"bytes,5,opt,name=Minute"   json:"minute"`
-	Second string `protobuf:"bytes,6,opt,name=Second"   json:"second"`
+	Year   string `protobuf:"bytes,1,opt,name=Year"          json:"year"`
+	Month  string `protobuf:"bytes,2,opt,name=Month"         json:"month"`
+	Day    string `protobuf:"bytes,3,opt,name=Day"           json:"day"`
+	Hour   string `protobuf:"bytes,4,opt,name=Hour"          json:"hour"`
+	Minute string `protobuf:"bytes,5,opt,name=Minute"        json:"minute"`
+	Second string `protobuf:"bytes,6,opt,name=Second"        json:"second"`
 }
 
 func (m *TimeStruct) Reset()                    { *m = TimeStruct{} }
 func (m *TimeStruct) String() string            { return proto.CompactTextString(m) }
 func (*TimeStruct) ProtoMessage()               {}
-func (*TimeStruct) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (*TimeStruct) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
 
 func (m *TimeStruct) GetYear() string {
 	if m != nil {
@@ -118,9 +98,9 @@ func init() {
 	proto.RegisterType((*TimeStruct)(nil), "beans.TimeStruct")
 }
 
-func init() { proto.RegisterFile("punchclock.proto", fileDescriptor0) }
+func init() { proto.RegisterFile("punchclock.proto", fileDescriptor1) }
 
-var fileDescriptor0 = []byte{
+var fileDescriptor1 = []byte{
 	// 200 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x28, 0x28, 0xcd, 0x4b,
 	0xce, 0x48, 0xce, 0xc9, 0x4f, 0xce, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4d, 0x4a,

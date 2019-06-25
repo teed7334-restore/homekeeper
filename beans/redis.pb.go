@@ -14,15 +14,15 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type Redis struct {
-	Key   string `protobuf:"bytes,1,opt,name=Key"      json:"key,omitempty"`
-	Value string `protobuf:"bytes,2,opt,name=Value"    json:"value,omitempty"`
-	Hkey  string `protobuf:"bytes,3,opt,name=Hkey"     json:"hkey,omitempty"`
+	Key   string `protobuf:"bytes,1,opt,name=Key"           json:"key,omitempty"`
+	Value string `protobuf:"bytes,2,opt,name=Value"         json:"value,omitempty"`
+	Hkey  string `protobuf:"bytes,3,opt,name=Hkey"          json:"hkey,omitempty"`
 }
 
 func (m *Redis) Reset()                    { *m = Redis{} }
 func (m *Redis) String() string            { return proto.CompactTextString(m) }
 func (*Redis) ProtoMessage()               {}
-func (*Redis) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (*Redis) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *Redis) GetKey() string {
 	if m != nil {
@@ -49,9 +49,9 @@ func init() {
 	proto.RegisterType((*Redis)(nil), "beans.Redis")
 }
 
-func init() { proto.RegisterFile("redis.proto", fileDescriptor1) }
+func init() { proto.RegisterFile("redis.proto", fileDescriptor2) }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor2 = []byte{
 	// 100 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2e, 0x4a, 0x4d, 0xc9,
 	0x2c, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4d, 0x4a, 0x4d, 0xcc, 0x2b, 0x56, 0x72,
