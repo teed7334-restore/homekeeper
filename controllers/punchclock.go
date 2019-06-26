@@ -89,7 +89,7 @@ func calcLeaveScope(params *beans.Punchclock) (diffDay int, diffHour int, diffMi
 	beginHour, beginMinute, endHour, endMinute = changeToLunchTime(beginTime, endTime, beginHour, beginMinute, endHour, endMinute)
 
 	if isSameDay(params) { //只請當天
-		if beginTime < 1200 && endTime > 1330 { //有跨午休
+		if beginTime < 1200 && endTime >= 1200 { //有跨午休
 			diffHour, diffMinute = calcTime(beginHour, endHour, beginMinute, endMinute, true)
 		} else { //沒跨午休
 			diffHour, diffMinute = calcTime(beginHour, endHour, beginMinute, endMinute, false)
