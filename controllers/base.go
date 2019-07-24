@@ -1,11 +1,15 @@
-package base
+package controllers
 
 import (
 	"bytes"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/teed7334-restore/homekeeper/env"
 )
+
+var cfg = env.GetEnv()
 
 //GetURL 透過HTTP GET取得網頁資料
 func GetURL(url string) []byte {

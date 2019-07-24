@@ -7,8 +7,6 @@ import (
 
 	"github.com/teed7334-restore/homekeeper/beans"
 
-	"github.com/teed7334-restore/homekeeper/env"
-
 	"github.com/garyburd/redigo/redis"
 	"github.com/gin-gonic/gin"
 )
@@ -161,7 +159,6 @@ func LRangeRedis(c *gin.Context) {
 }
 
 func initRedis() redis.Conn {
-	cfg := env.GetEnv()
 	client, err := redis.Dial(cfg.Redis.Protocol, cfg.Redis.Host)
 	if err != nil {
 		log.Panic(err)

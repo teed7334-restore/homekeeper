@@ -10,13 +10,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/teed7334-restore/homekeeper/beans"
-	"github.com/teed7334-restore/homekeeper/env"
 	"github.com/teed7334-restore/homekeeper/models"
 )
 
 //ResetAllUseMinute 重新計算所有請假時間
 func ResetAllUseMinute(c *gin.Context) {
-	cfg := env.GetEnv()
 	models.SetUseMinuteToZero()
 	result := models.GetLeaveHistory()
 	for _, item := range result {
@@ -51,7 +49,6 @@ func CalcTime(c *gin.Context) {
 }
 
 func combinTimeParams(beginTime time.Time, endTime time.Time) *beans.Punchclock {
-	cfg := env.GetEnv()
 	beginStr := beginTime.Format(cfg.TimeFormat)
 	beginArr := strings.Split(beginStr, " ")
 	beginDateArr := strings.Split(beginArr[0], "-")
@@ -136,7 +133,6 @@ func setCarry(diffDay int, diffHour int, diffMinute int) (_diffDay int, _diffHou
 
 //getHoliday 取得休假日期
 func getHoliday() map[string]int {
-	cfg := env.GetEnv()
 	list := models.GetHoliday()
 	data := make(map[string]int)
 	for _, item := range list {
@@ -169,7 +165,6 @@ func isHoliday(year string, month string, day string) bool {
 
 //calcDate 計算跨日天數
 func calcDate(beginYear string, beginMonth string, beginDay string, endYear string, endMonth string, endDay string) int {
-	cfg := env.GetEnv()
 	diffDay := 0
 	_beginMonth := beginMonth
 	_beginDay := beginDay

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/teed7334-restore/homekeeper/beans"
-	"github.com/teed7334-restore/homekeeper/env"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/gomail.v2"
@@ -24,7 +23,6 @@ func SendMail(c *gin.Context) {
 
 //doSendMail 寄發通知郵件
 func doSendMail(params *beans.SendMail) {
-	cfg := env.GetEnv()
 	mail := gomail.NewMessage()
 	mail.SetHeader("From", cfg.Mail.From)
 	mail.SetHeader("To", params.GetTo())

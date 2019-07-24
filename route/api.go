@@ -28,6 +28,5 @@ func API() *gin.Engine {
 	route.POST("/Redis/LRange", controllers.LRangeRedis)
 	route.POST("/PunchClock/CalcTime", controllers.CalcTime)
 	route.POST("/PunchClock/ResetAllUseMinute", controllers.ResetAllUseMinute)
-	route.POST("/GoMyPay/PayCreditCard", controllers.PayCreditCard)
 	return route
 }
