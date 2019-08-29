@@ -28,5 +28,10 @@ func API() *gin.Engine {
 	route.POST("/Redis/LRange", controllers.LRangeRedis)
 	route.POST("/PunchClock/CalcTime", controllers.CalcTime)
 	route.POST("/PunchClock/ResetAllUseMinute", controllers.ResetAllUseMinute)
+	route.POST("/PunchClock/GetEmployeeOnChain", controllers.GetEmployeeOnChain)
+	route.POST("/PunchClock/AddEmployeeOnChain", controllers.AddEmployeeOnChain)
+	route.POST("/PunchClock/GetPunchclockOnChain", controllers.GetPunchclockOnChain)
+	route.POST("/PunchClock/AddPunchclockOnChain", controllers.AddPunchclockOnChain)
+	route.POST("/PunchClock/UploadDailyPunchclockData", controllers.UploadDailyPunchclockData)
 	return route
 }

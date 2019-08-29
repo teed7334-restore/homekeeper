@@ -2,12 +2,20 @@ package controllers
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"github.com/teed7334-restore/homekeeper/beans"
 	"github.com/teed7334-restore/homekeeper/env"
 )
+
+//ChainResultObject Hyperledger REST回傳物件
+type ChainResultObject interface {
+	GetError() *beans.APIError
+}
 
 var cfg = env.GetEnv()
 
@@ -40,4 +48,32 @@ func PostURL(url string, params []byte) []byte {
 	body, _ := ioutil.ReadAll(result.Body)
 	defer result.Body.Close()
 	return body
+}
+
+//getParams 取得HTTP POST帶過來之參數
+func getParams(c *gin.Context, params interface{}) {
+	err := c.BindJSON(params)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+//getChainParams 取得Hyperledger鏈上傳來的資料
+func getChainParams(url string, params []byte, action string, resultObject ChainResultObject) {
+	result := []byte{}
+	switch action {
+	case "GET":
+		result = GetURL(url)
+	case "POST":
+		result = PostURL(url, params)
+	}
+	err := json.Unmarshal(result, resultObject)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if resultObject.GetError() != nil {
+		log.Println(resultObject.GetError().GetMessage())
+		return
+	}
 }

@@ -2,11 +2,6 @@ syntax = "proto3";
 
 package beans;
 
-message Punchclock {
-    TimeStruct Begin = 7; //`json:"begin"`
-    TimeStruct End = 8; //`json:"end"`
-}
-
 message TimeStruct {
     string Year = 1; //`json:"year"`
     string Month = 2; //`json:"month"`
@@ -14,4 +9,31 @@ message TimeStruct {
     string Hour = 4; //`json:"hour"`
     string Minute = 5; //`json:"minute"`
     string Second = 6; //`json:"second"`
+}
+
+message Punchclock {
+    TimeStruct Begin = 7; //`json:"begin"`
+    TimeStruct End = 8; //`json:"end"`
+}
+
+message EmployeeOnChain {
+    string Class = 9; //`json:"$class" form:"$class"` 
+    string Identify = 10; //`json:"identify" form:"identify"`
+    string FirstName = 11; //`json:"firstName" form:"firstName"`
+    string LastName = 12; //`json:"lastName" form:"lastName"`
+}
+
+message PunchclockOnChain {
+    string Class = 13; //`json:"$class" form:"$class"`
+    string ID = 14; //`json:"id" form:"id"`
+    string OnWorkDate = 15; //`json:"onWorkDate" form:"onWorkDate"`
+    string OnWorkTime = 16; //`json:"onWorkTime" form:"onWorkTime"`
+    string OffWorkTime = 17; //`json:"offWorkTime" form:"offWorkTime"`
+    string WorkTimes = 18; //`json:"workTimes" form:"workTimes"`
+    string Employee = 19; //`json:"employee" form:"employee"`
+}
+
+message DailyPunchclockData {
+    EmployeeOnChain Employee = 20; //`json:"employee" form:"employee"`
+    Punchclock Punchclock = 21; //`json:"punchclock" form:"punchclock"`
 }

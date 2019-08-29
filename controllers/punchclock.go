@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"github.com/teed7334-restore/homekeeper/beans"
 	"github.com/teed7334-restore/homekeeper/models"
 )
@@ -43,7 +45,8 @@ func CallCalcTime(onWorkTime time.Time, offWorkTime time.Time) (diffDay int, dif
 
 //CalcTime 計算時數
 func CalcTime(c *gin.Context) {
-	params := getPunchclockParams(c)
+	params := &beans.Punchclock{}
+	getParams(c, params)
 	diffDay, diffHour, diffMinute := calcLeaveScope(params)
 	c.JSON(http.StatusOK, gin.H{"diffDay": diffDay, "diffHour": diffHour, "diffMinute": diffMinute})
 }
@@ -233,12 +236,129 @@ func isSameDay(pc *beans.Punchclock) bool {
 	return begin == end
 }
 
-//getPunchclockParams 取得HTTP POST帶過來之參數
-func getPunchclockParams(c *gin.Context) *beans.Punchclock {
-	params := &beans.Punchclock{}
-	err := c.BindJSON(params)
+//GetEmployeeOnChain 取鏈上取得員工資料
+func GetEmployeeOnChain(c *gin.Context) {
+	params := &beans.EmployeeOnChain{}
+	getParams(c, params)
+	id := params.GetIdentify()
+	empolyee := doGetEmployeeOnChain(id)
+	c.JSON(http.StatusOK, empolyee)
+}
+
+//doGetEmployeeOnChain 執行從鏈上取得員工資料
+func doGetEmployeeOnChain(id string) *beans.GetEmployee {
+	url := cfg.Hyperledger.Host + "/api/Employee/" + id
+	empolyee := &beans.GetEmployee{}
+	getChainParams(url, []byte{}, "GET", empolyee)
+	return empolyee
+}
+
+//AddEmployeeOnChain 追加鏈上員工資料
+func AddEmployeeOnChain(c *gin.Context) {
+	params := &beans.EmployeeOnChain{}
+	getParams(c, params)
+	empolyee := doAddEmployeeOnChain(params)
+	c.JSON(http.StatusOK, &empolyee)
+}
+
+//doAddEmployeeOnChain 執行新增員工到鏈上
+func doAddEmployeeOnChain(params *beans.EmployeeOnChain) *beans.GetEmployee {
+	params.Class = "com.taipay.network.Employee"
+	url := cfg.Hyperledger.Host + "/api/Employee/"
+	jsonParams, err := json.Marshal(params)
 	if err != nil {
 		log.Println(err)
 	}
-	return params
+	empolyee := &beans.GetEmployee{}
+	getChainParams(url, jsonParams, "POST", empolyee)
+	return empolyee
+}
+
+//AddPunchclockOnChain 寫入員工卡鐘資料
+func AddPunchclockOnChain(c *gin.Context) {
+	params := &beans.PunchclockOnChain{}
+	getParams(c, params)
+	punchclock := doAddPunchclockOnChain(params)
+	c.JSON(200, &punchclock)
+}
+
+//GetPunchclockOnChain 取鏈上取得打卡資料
+func GetPunchclockOnChain(c *gin.Context) {
+	params := &beans.PunchclockOnChain{}
+	getParams(c, params)
+	id := params.GetID()
+	punchclock := doGetPunchclockOnChain(id)
+	c.JSON(http.StatusOK, punchclock)
+}
+
+//doGetPunchclockOnChain 執行從鏈上取得打卡資料
+func doGetPunchclockOnChain(id string) *beans.GetPunchclock {
+	url := cfg.Hyperledger.Host + "/api/Punchclock/" + id
+	punchclock := &beans.GetPunchclock{}
+	getChainParams(url, []byte{}, "GET", punchclock)
+	return punchclock
+}
+
+//doAddPunchclockOnChain
+func doAddPunchclockOnChain(params *beans.PunchclockOnChain) *beans.GetPunchclock {
+	params.Class = "com.taipay.network.Punchclock"
+	url := cfg.Hyperledger.Host + "/api/Punchclock/"
+	jsonParams, err := json.Marshal(params)
+	if err != nil {
+		log.Println(err)
+	}
+	punchclock := &beans.GetPunchclock{}
+	getChainParams(url, jsonParams, "POST", punchclock)
+	return punchclock
+}
+
+//UploadDailyPunchclockData 將每天員工打卡資料上鏈
+func UploadDailyPunchclockData(c *gin.Context) {
+	params := &beans.DailyPunchclockData{}
+	getParams(c, params)
+	id := params.GetEmployee().GetIdentify()
+	employee := doGetEmployeeOnChain(id)
+	if employee.GetError() != nil {
+		employee = doAddEmployeeOnChain(params.GetEmployee())
+		if employee.GetError() != nil {
+			log.Println(employee.GetError().GetMessage())
+			return
+		}
+	}
+	dailyPunchclockData := combinDailyPunchData(params)
+	result := doAddPunchclockOnChain(dailyPunchclockData)
+	c.JSON(200, &result)
+}
+
+//combinDailyPunchData 合併需上傳之打卡記錄
+func combinDailyPunchData(params *beans.DailyPunchclockData) *beans.PunchclockOnChain {
+	year := params.GetPunchclock().GetBegin().GetYear()
+	month := params.GetPunchclock().GetBegin().GetMonth()
+	day := params.GetPunchclock().GetBegin().GetDay()
+	identify := params.GetEmployee().GetIdentify()
+	dailyPunchclockData := &beans.PunchclockOnChain{}
+	dailyPunchclockData.ID = getDailyPunchclockID()
+	dailyPunchclockData.OnWorkDate = year + "-" + month + "-" + day
+	dailyPunchclockData.OnWorkTime = params.GetPunchclock().GetBegin().GetHour() + ":" + params.GetPunchclock().GetBegin().GetMinute()
+	dailyPunchclockData.OffWorkTime = params.GetPunchclock().GetEnd().GetHour() + ":" + params.GetPunchclock().GetEnd().GetMinute()
+	diffDay, diffHour, diffMinute := calcLeaveScope(params.GetPunchclock())
+	if diffDay > 0 {
+		diffHour = diffHour + diffDay*8
+	}
+	dailyPunchclockData.WorkTimes = strconv.Itoa(diffHour) + " Hours " + strconv.Itoa(diffMinute) + " Minutes"
+	dailyPunchclockData.Employee = identify
+	return dailyPunchclockData
+}
+
+//getDailyPunchclockID 取得打卡記錄上鏈用ID
+func getDailyPunchclockID() string {
+	id := uuid.Must(uuid.NewV4()).String()
+	for {
+		punchclock := doGetPunchclockOnChain(id)
+		if punchclock.GetError() != nil {
+			break
+		}
+		id = uuid.Must(uuid.NewV4()).String()
+	}
+	return id
 }

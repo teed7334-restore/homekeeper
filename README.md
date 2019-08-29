@@ -170,24 +170,71 @@ go get -u -v github.com/gin-gonic/gin
 {}
 ```
 
-重新設定所有員工休假區間 http://[Your Host Name]:8806/GoMyPay/PayCreditCard
+取鏈上取得打卡資料 http://[Your Host Name]:8806/PunchClock/GetEmployeeOnChain
 ```
 //HTTP Header需設定成Content-Type: application/json
 {
-  "Send_Type":"1",
-  "Pay_Mode_No":"2",
-  "Order_No":"2019062500001",
-  "Amount":"100",
-  "TransCode":"00",
-  "Buyer_Name":"Peter Cheng",
-  "Buyer_Mail":"teed7334@gmail.com",
-  "Buyer_Memo":"Omega 手錶",
-  "CardNo":"5509158011124600",
-  "ExpireDate":"2307",
-  "CVV":"811",
-  "TransMode":"1",
-  "Installment":"0",
-  "e_return":"1",
-  "Str_Check":""
+  "identify":"00190"
+}
+```
+
+寫入員工卡鐘資料 http://[Your Host Name]:8806/PunchClock/AddEmployeeOnChain
+```
+//HTTP Header需設定成Content-Type: application/json
+{
+  "identify":"00192",
+  "firstName":"Tony",
+  "lastName":"Chen"
+}
+```
+
+取鏈上取得打卡資料 http://[Your Host Name]:8806/PunchClock/GetPunchclockOnChain
+```
+//HTTP Header需設定成Content-Type: application/json
+{
+  "id":"3acde18a-a36b-49de-be4f-b552398b140f"
+}
+```
+
+寫入員工卡鐘資料 http://[Your Host Name]:8806/PunchClock/AddPunchclockOnChain
+```
+//HTTP Header需設定成Content-Type: application/json
+{
+  "id":"20190822.00190",
+  "onWorkDate":"2019-08-22",
+  "onWorkTime":"09:50",
+  "offWorkTime":"20:00",
+  "workTimes":"9 hour 1 minute",
+  "employee": "00190"
+}
+```
+
+將每天員工打卡資料上鏈 http://[Your Host Name]:8806/PunchClock/UploadDailyPunchclockData
+```
+//HTTP Header需設定成Content-Type: application/json
+{
+  "employee": {
+    "identify": "00190",
+    "firstName": "Peter",
+    "lastName": "Cheng"
+  },
+  "punchclock": {
+    "begin": {
+      "year": "2019",
+      "month": "08",
+      "day": "28",
+      "hour": "09",
+      "minute": "24",
+      "second": "00"
+    },
+    "end": {
+      "year": "2019",
+      "month": "08",
+      "day": "28",
+      "hour": "20",
+      "minute": "05",
+      "second": "00"
+    }
+  }
 }
 ```

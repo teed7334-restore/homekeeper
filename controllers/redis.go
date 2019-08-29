@@ -13,7 +13,8 @@ import (
 
 //GetRedis 取得Redis資料
 func GetRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := redis.String(client.Do("get", params.GetKey()))
 	if err != nil {
@@ -25,7 +26,8 @@ func GetRedis(c *gin.Context) {
 
 //SetRedis 設定Redis資料
 func SetRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("set", params.GetKey(), params.GetValue())
 	if err != nil {
@@ -37,7 +39,8 @@ func SetRedis(c *gin.Context) {
 
 //IncrRedis 對Redis資料進行遞增
 func IncrRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("incr", params.GetKey())
 	if err != nil {
@@ -49,7 +52,8 @@ func IncrRedis(c *gin.Context) {
 
 //DecrRedis 對Redis資料進行遞減
 func DecrRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("decr", params.GetKey())
 	if err != nil {
@@ -61,7 +65,8 @@ func DecrRedis(c *gin.Context) {
 
 //HSetRedis 對Redis資料建立Hashmap
 func HSetRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("hset", params.GetKey(), params.GetHkey(), params.GetValue())
 	if err != nil {
@@ -73,7 +78,8 @@ func HSetRedis(c *gin.Context) {
 
 //HGetRedis 取得建立Hashmap的Redis資料
 func HGetRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := redis.String(client.Do("hget", params.GetKey(), params.GetHkey()))
 	if err != nil {
@@ -85,7 +91,8 @@ func HGetRedis(c *gin.Context) {
 
 //SAddRedis 對Redis進行資料添加，並排除重複項目
 func SAddRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("sadd", params.GetKey(), params.GetValue())
 	if err != nil {
@@ -97,7 +104,8 @@ func SAddRedis(c *gin.Context) {
 
 //SCardRedis 取得Key中的資料集合總數
 func SCardRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("scard", params.GetKey())
 	if err != nil {
@@ -109,7 +117,8 @@ func SCardRedis(c *gin.Context) {
 
 //LPushRedis 對Redis中List資料的前面做資料添加
 func LPushRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("lpush", params.GetKey(), params.GetValue())
 	if err != nil {
@@ -121,7 +130,8 @@ func LPushRedis(c *gin.Context) {
 
 //RPushRedis 對Redis中List資料的後面做資料添加
 func RPushRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("rpush", params.GetKey(), params.GetValue())
 	if err != nil {
@@ -133,7 +143,8 @@ func RPushRedis(c *gin.Context) {
 
 //LSetRedis 從Redis中List資料的第...列做資料修改
 func LSetRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	client := initRedis()
 	value, err := client.Do("lset", params.GetKey(), params.GetHkey(), params.GetValue())
 	if err != nil {
@@ -145,7 +156,8 @@ func LSetRedis(c *gin.Context) {
 
 //LRangeRedis 取得Redis中List特定範圍裡面的資料
 func LRangeRedis(c *gin.Context) {
-	params := getRedisParams(c)
+	params := &beans.Redis{}
+	getParams(c, params)
 	getRange := strings.Split(params.GetValue(), ":")
 	begin := getRange[0]
 	end := getRange[1]
@@ -164,13 +176,4 @@ func initRedis() redis.Conn {
 		log.Panic(err)
 	}
 	return client
-}
-
-func getRedisParams(c *gin.Context) *beans.Redis {
-	params := &beans.Redis{}
-	err := c.BindJSON(params)
-	if err != nil {
-		log.Println(err)
-	}
-	return params
 }

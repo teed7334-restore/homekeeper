@@ -13,10 +13,7 @@ import (
 //SendMail 寄信用API
 func SendMail(c *gin.Context) {
 	params := &beans.SendMail{}
-	err := c.BindJSON(params)
-	if err != nil {
-		log.Println(err)
-	}
+	getParams(c, params)
 	doSendMail(params)
 	c.JSON(http.StatusOK, gin.H{"status": "true"})
 }

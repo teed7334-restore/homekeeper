@@ -14,10 +14,10 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type SendMail struct {
-	To      string ` protobuf:"bytes,1,opt,name=To"            json:"To,omitempty"            form:"to"`
-	Cc      string ` protobuf:"bytes,2,opt,name=Cc"            json:"Cc,omitempty"            form:"cc"`
-	Subject string ` protobuf:"bytes,3,opt,name=Subject"       json:"Subject,omitempty"       form:"subject"`
-	Content string ` protobuf:"bytes,4,opt,name=Content"       json:"Content,omitempty"       form:"content"`
+	To      string ` protobuf:"bytes,1,opt,name=To"            json:"To,omitempty"     form:"to"`
+	Cc      string ` protobuf:"bytes,2,opt,name=Cc"            json:"Cc,omitempty"     form:"cc"`
+	Subject string ` protobuf:"bytes,3,opt,name=Subject"       json:"Subject,omitempty"  form:"subject"`
+	Content string ` protobuf:"bytes,4,opt,name=Content"       json:"Content,omitempty"  form:"content"`
 }
 
 func (m *SendMail) Reset()                    { *m = SendMail{} }
