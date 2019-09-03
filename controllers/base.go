@@ -72,7 +72,7 @@ func getChainParams(url string, params []byte, action string, resultObject Chain
 		log.Panicln(err)
 		return
 	}
-	if resultObject.GetError() != nil {
+	if resultObject.GetError() != nil && resultObject.GetError().GetStatusCode() != 404 {
 		log.Panicln(resultObject.GetError().GetMessage())
 		return
 	}

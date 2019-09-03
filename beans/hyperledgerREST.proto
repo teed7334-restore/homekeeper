@@ -24,7 +24,7 @@ message APIError {
     int32 statusCode = 6; //`json:"status_code" form:"status_code"`
     string name = 7; //`json:"name" form:"name"`
     string message = 8; //`json:"message" form:"message"`
-    string status = 9; //`json:"status" form:"status"`
+    int32 status = 9; //`json:"status" form:"status"`
     string code = 10; //`json:"code" form:"code"`
     string stack = 11; //`json:"stack" form:"stack"`
 }
