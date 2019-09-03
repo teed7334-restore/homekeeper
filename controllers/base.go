@@ -23,12 +23,12 @@ var cfg = env.GetEnv()
 func GetURL(url string) []byte {
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
 	client := &http.Client{}
 	result, err := client.Do(request)
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
 	body, _ := ioutil.ReadAll(result.Body)
 	defer result.Body.Close()
@@ -43,7 +43,7 @@ func PostURL(url string, params []byte) []byte {
 	client := &http.Client{}
 	result, err := client.Do(request)
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	body, _ := ioutil.ReadAll(result.Body)
 	defer result.Body.Close()
@@ -54,7 +54,7 @@ func PostURL(url string, params []byte) []byte {
 func getParams(c *gin.Context, params interface{}) {
 	err := c.BindJSON(params)
 	if err != nil {
-		log.Println(err)
+		log.Panicln(err)
 	}
 }
 
@@ -69,11 +69,11 @@ func getChainParams(url string, params []byte, action string, resultObject Chain
 	}
 	err := json.Unmarshal(result, resultObject)
 	if err != nil {
-		log.Println(err)
+		log.Panicln(err)
 		return
 	}
 	if resultObject.GetError() != nil {
-		log.Println(resultObject.GetError().GetMessage())
+		log.Panicln(resultObject.GetError().GetMessage())
 		return
 	}
 }

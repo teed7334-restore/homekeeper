@@ -30,6 +30,6 @@ func doSendMail(params *beans.SendMail) {
 	mail.SetBody("text/html", params.GetContent())
 	send := gomail.NewPlainDialer(cfg.Mail.Host, cfg.Mail.Port, cfg.Mail.User, cfg.Mail.Password)
 	if err := send.DialAndSend(mail); err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 }

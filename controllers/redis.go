@@ -18,7 +18,7 @@ func GetRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := redis.String(client.Do("get", params.GetKey()))
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -31,7 +31,7 @@ func SetRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("set", params.GetKey(), params.GetValue())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"success": value})
@@ -44,7 +44,7 @@ func IncrRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("incr", params.GetKey())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -57,7 +57,7 @@ func DecrRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("decr", params.GetKey())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -70,7 +70,7 @@ func HSetRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("hset", params.GetKey(), params.GetHkey(), params.GetValue())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -83,7 +83,7 @@ func HGetRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := redis.String(client.Do("hget", params.GetKey(), params.GetHkey()))
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -96,7 +96,7 @@ func SAddRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("sadd", params.GetKey(), params.GetValue())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -109,7 +109,7 @@ func SCardRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("scard", params.GetKey())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -122,7 +122,7 @@ func LPushRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("lpush", params.GetKey(), params.GetValue())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -135,7 +135,7 @@ func RPushRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("rpush", params.GetKey(), params.GetValue())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -148,7 +148,7 @@ func LSetRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := client.Do("lset", params.GetKey(), params.GetHkey(), params.GetValue())
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -164,7 +164,7 @@ func LRangeRedis(c *gin.Context) {
 	client := initRedis()
 	value, err := redis.Strings(client.Do("lrange", params.GetKey(), begin, end))
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -173,7 +173,7 @@ func LRangeRedis(c *gin.Context) {
 func initRedis() redis.Conn {
 	client, err := redis.Dial(cfg.Redis.Protocol, cfg.Redis.Host)
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
 	return client
 }

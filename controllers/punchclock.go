@@ -305,7 +305,7 @@ func doAddPunchclockOnChain(params *beans.PunchclockOnChain) *beans.GetPunchcloc
 	url := cfg.Hyperledger.Host + "/api/Punchclock/"
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
-		log.Println(err)
+		log.Panicln(err)
 	}
 	punchclock := &beans.GetPunchclock{}
 	getChainParams(url, jsonParams, "POST", punchclock)
@@ -321,7 +321,7 @@ func UploadDailyPunchclockData(c *gin.Context) {
 	if employee.GetError() != nil {
 		employee = doAddEmployeeOnChain(params.GetEmployee())
 		if employee.GetError() != nil {
-			log.Println(employee.GetError().GetMessage())
+			log.Panicln(employee.GetError().GetMessage())
 			return
 		}
 	}
