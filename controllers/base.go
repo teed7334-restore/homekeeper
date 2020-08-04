@@ -9,26 +9,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/teed7334-restore/homekeeper/beans"
-	"github.com/teed7334-restore/homekeeper/env"
 )
-
-//ChainResultObject Hyperledger REST回傳物件
-type ChainResultObject interface {
-	GetError() *beans.APIError
-}
-
-var cfg = env.GetEnv()
 
 //GetURL 透過HTTP GET取得網頁資料
 func GetURL(url string) []byte {
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	client := &http.Client{}
 	result, err := client.Do(request)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	body, _ := ioutil.ReadAll(result.Body)
 	defer result.Body.Close()
@@ -43,7 +35,7 @@ func PostURL(url string, params []byte) []byte {
 	client := &http.Client{}
 	result, err := client.Do(request)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	body, _ := ioutil.ReadAll(result.Body)
 	defer result.Body.Close()
@@ -54,12 +46,12 @@ func PostURL(url string, params []byte) []byte {
 func getParams(c *gin.Context, params interface{}) {
 	err := c.BindJSON(params)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 }
 
 //getChainParams 取得Hyperledger鏈上傳來的資料
-func getChainParams(url string, params []byte, action string, resultObject ChainResultObject) {
+func getChainParams(url string, params []byte, action string, resultObject *beans.GetEmployee) {
 	result := []byte{}
 	switch action {
 	case "GET":
@@ -69,11 +61,11 @@ func getChainParams(url string, params []byte, action string, resultObject Chain
 	}
 	err := json.Unmarshal(result, resultObject)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 		return
 	}
-	if resultObject.GetError() != nil && resultObject.GetError().GetStatusCode() != 404 {
-		log.Panicln(resultObject.GetError().GetMessage())
+	if resultObject.Error.Message != "" && resultObject.Error.StatusCode != "404" {
+		log.Println(resultObject.Error.Message)
 		return
 	}
 }

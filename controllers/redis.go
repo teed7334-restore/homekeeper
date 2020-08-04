@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/teed7334-restore/homekeeper/beans"
@@ -16,9 +17,9 @@ func GetRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := redis.String(client.Do("get", params.GetKey()))
+	value, err := redis.String(client.Do("get", params.Key))
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -29,9 +30,9 @@ func SetRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("set", params.GetKey(), params.GetValue())
+	value, err := client.Do("set", params.Key, params.Value)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"success": value})
@@ -42,9 +43,9 @@ func IncrRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("incr", params.GetKey())
+	value, err := client.Do("incr", params.Key)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -55,9 +56,9 @@ func DecrRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("decr", params.GetKey())
+	value, err := client.Do("decr", params.Key)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -68,9 +69,9 @@ func HSetRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("hset", params.GetKey(), params.GetHkey(), params.GetValue())
+	value, err := client.Do("hset", params.Key, params.Hkey, params.Value)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -81,9 +82,9 @@ func HGetRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := redis.String(client.Do("hget", params.GetKey(), params.GetHkey()))
+	value, err := redis.String(client.Do("hget", params.Key, params.Hkey))
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -94,9 +95,9 @@ func SAddRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("sadd", params.GetKey(), params.GetValue())
+	value, err := client.Do("sadd", params.Key, params.Value)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -107,9 +108,9 @@ func SCardRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("scard", params.GetKey())
+	value, err := client.Do("scard", params.Key)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -120,9 +121,9 @@ func LPushRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("lpush", params.GetKey(), params.GetValue())
+	value, err := client.Do("lpush", params.Key, params.Value)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -133,9 +134,9 @@ func RPushRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("rpush", params.GetKey(), params.GetValue())
+	value, err := client.Do("rpush", params.Key, params.Value)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -146,9 +147,9 @@ func LSetRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
 	client := initRedis()
-	value, err := client.Do("lset", params.GetKey(), params.GetHkey(), params.GetValue())
+	value, err := client.Do("lset", params.Key, params.Hkey, params.Value)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
@@ -158,22 +159,24 @@ func LSetRedis(c *gin.Context) {
 func LRangeRedis(c *gin.Context) {
 	params := &beans.Redis{}
 	getParams(c, params)
-	getRange := strings.Split(params.GetValue(), ":")
+	getRange := strings.Split(params.Value, ":")
 	begin := getRange[0]
 	end := getRange[1]
 	client := initRedis()
-	value, err := redis.Strings(client.Do("lrange", params.GetKey(), begin, end))
+	value, err := redis.Strings(client.Do("lrange", params.Key, begin, end))
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	defer client.Close()
 	c.JSON(http.StatusOK, gin.H{"value": value})
 }
 
 func initRedis() redis.Conn {
-	client, err := redis.Dial(cfg.Redis.Protocol, cfg.Redis.Host)
+	protocol := os.Getenv("redis.protocol")
+	host := os.Getenv("redis.host")
+	client, err := redis.Dial(protocol, host)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 	return client
 }

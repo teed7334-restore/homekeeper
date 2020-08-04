@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"crypto/tls"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/teed7334-restore/homekeeper/beans"
 
@@ -21,15 +24,25 @@ func SendMail(c *gin.Context) {
 //doSendMail 寄發通知郵件
 func doSendMail(params *beans.SendMail) {
 	mail := gomail.NewMessage()
-	mail.SetHeader("From", cfg.Mail.From)
-	mail.SetHeader("To", params.GetTo())
-	if "" != params.GetCc() {
-		mail.SetHeader("Cc", params.GetCc())
+	from := os.Getenv("mail.from")
+	mail.SetHeader("From", from)
+	mail.SetHeader("To", params.To)
+	if "" != params.Cc {
+		mail.SetHeader("Cc", params.Cc)
 	}
-	mail.SetHeader("Subject", params.GetSubject())
-	mail.SetBody("text/html", params.GetContent())
-	send := gomail.NewPlainDialer(cfg.Mail.Host, cfg.Mail.Port, cfg.Mail.User, cfg.Mail.Password)
+	mail.SetHeader("Subject", params.Subject)
+	mail.SetBody("text/html", params.Content)
+
+	host := os.Getenv("mail.host")
+	port, _ := strconv.Atoi(os.Getenv("mail.port"))
+	user := os.Getenv("mail.user")
+	passwd := os.Getenv("mail.password")
+	send := gomail.NewPlainDialer(host, port, user, passwd)
+
+	//取消TLS連線
+	send.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
 	if err := send.DialAndSend(mail); err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 }

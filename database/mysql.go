@@ -2,11 +2,10 @@ package database
 
 import (
 	"fmt"
-
-	"github.com/teed7334-restore/homekeeper/env"
+	"log"
+	"os"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 //Db 資料庫連結器
@@ -16,10 +15,16 @@ var Db *gorm.DB
 var Err error
 
 func init() {
-	db := env.GetEnv().Database
-	dsn := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=%s&loc=%s", db.User, db.Password, db.Host, db.Database, db.Charset, db.ParseTime, db.Loc)
+	user := os.Getenv("database.user")
+	passwd := os.Getenv("database.password")
+	host := os.Getenv("database.host")
+	database := os.Getenv("database.database")
+	charset := os.Getenv("database.charset")
+	parseTime := os.Getenv("database.parseTime")
+	loc := os.Getenv("database.loc")
+	dsn := fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=%s&loc=%s", user, passwd, host, database, charset, parseTime, loc)
 	Db, Err = gorm.Open("mysql", dsn)
 	if Err != nil {
-		panic(Err)
+		log.Println(Err)
 	}
 }

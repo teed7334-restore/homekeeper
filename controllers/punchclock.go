@@ -1,16 +1,14 @@
 package controllers
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 	"github.com/teed7334-restore/homekeeper/beans"
 	"github.com/teed7334-restore/homekeeper/models"
 )
@@ -20,14 +18,15 @@ func ResetAllUseMinute(c *gin.Context) {
 	models.SetUseMinuteToZero()
 	result := models.GetLeaveHistory()
 	for _, item := range result {
-		beginDateStr := item.Startdate.Format(cfg.TimeFormat)
+		timeFormat := os.Getenv("timeFormat")
+		beginDateStr := item.Startdate.Format(timeFormat)
 		beginDateArr := strings.Split(beginDateStr, " ")
-		endDateStr := item.Enddate.Format(cfg.TimeFormat)
+		endDateStr := item.Enddate.Format(timeFormat)
 		endDateArr := strings.Split(endDateStr, " ")
 		checkTime := beginDateArr[0] + " " + item.Starttime
-		beginTime, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
+		beginTime, _ := time.ParseInLocation(timeFormat, checkTime, time.Local)
 		checkTime = endDateArr[0] + " " + item.Endtime
-		endTime, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
+		endTime, _ := time.ParseInLocation(timeFormat, checkTime, time.Local)
 		params := combinTimeParams(beginTime, endTime)
 		diffDay, diffHour, diffMinute := calcLeaveScope(params)
 		useMinute := diffDay*8*60 + diffHour*60 + diffMinute
@@ -52,32 +51,33 @@ func CalcTime(c *gin.Context) {
 }
 
 func combinTimeParams(beginTime time.Time, endTime time.Time) *beans.Punchclock {
-	beginStr := beginTime.Format(cfg.TimeFormat)
+	timeFormat := os.Getenv("timeFormat")
+	beginStr := beginTime.Format(timeFormat)
 	beginArr := strings.Split(beginStr, " ")
 	beginDateArr := strings.Split(beginArr[0], "-")
 	beginTimeArr := strings.Split(beginArr[1], ":")
-	endStr := endTime.Format(cfg.TimeFormat)
+	endStr := endTime.Format(timeFormat)
 	endArr := strings.Split(endStr, " ")
 	endDateArr := strings.Split(endArr[0], "-")
 	endTimeArr := strings.Split(endArr[1], ":")
 	begin := &beans.TimeStruct{Year: beginDateArr[0], Month: beginDateArr[1], Day: beginDateArr[2], Hour: beginTimeArr[0], Minute: beginTimeArr[1], Second: beginTimeArr[2]}
 	end := &beans.TimeStruct{Year: endDateArr[0], Month: endDateArr[1], Day: endDateArr[2], Hour: endTimeArr[0], Minute: endTimeArr[1], Second: endTimeArr[2]}
-	params := &beans.Punchclock{Begin: begin, End: end}
+	params := &beans.Punchclock{Begin: *begin, End: *end}
 	return params
 }
 
 //calcLeaveScope 計算休假區間主程式
 func calcLeaveScope(params *beans.Punchclock) (diffDay int, diffHour int, diffMinute int) {
-	beginYear := params.GetBegin().GetYear()
-	beginMonth := appendZero(params.GetBegin().GetMonth())
-	beginDay := appendZero(params.GetBegin().GetDay())
-	beginHour := appendZero(params.GetBegin().GetHour())
-	beginMinute := appendZero(params.GetBegin().GetMinute())
-	endYear := params.GetEnd().GetYear()
-	endMonth := appendZero(params.GetEnd().GetMonth())
-	endDay := appendZero(params.GetEnd().GetDay())
-	endHour := appendZero(params.GetEnd().GetHour())
-	endMinute := appendZero(params.GetEnd().GetMinute())
+	beginYear := params.Begin.Year
+	beginMonth := appendZero(params.Begin.Month)
+	beginDay := appendZero(params.Begin.Day)
+	beginHour := appendZero(params.Begin.Hour)
+	beginMinute := appendZero(params.Begin.Minute)
+	endYear := params.End.Year
+	endMonth := appendZero(params.End.Month)
+	endDay := appendZero(params.End.Day)
+	endHour := appendZero(params.End.Hour)
+	endMinute := appendZero(params.End.Minute)
 
 	beginTime, _ := strconv.Atoi(beginHour + beginMinute)
 	endTime, _ := strconv.Atoi(endHour + endMinute)
@@ -138,8 +138,9 @@ func setCarry(diffDay int, diffHour int, diffMinute int) (_diffDay int, _diffHou
 func getHoliday() map[string]int {
 	list := models.GetHoliday()
 	data := make(map[string]int)
+	timeFormat := os.Getenv("timeFormat")
 	for _, item := range list {
-		datetime := item.Date.Format(cfg.TimeFormat)
+		datetime := item.Date.Format(timeFormat)
 		date := strings.Split(datetime, " ")[0]
 		key := date
 		data[key] = 1
@@ -174,12 +175,13 @@ func calcDate(beginYear string, beginMonth string, beginDay string, endYear stri
 	_endMonth := endMonth
 	_endDay := endDay
 	checkTime := beginYear + "-" + _beginMonth + "-" + _beginDay + " 00:00:00"
-	begin, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
+	timeFormat := os.Getenv("timeFormat")
+	begin, _ := time.ParseInLocation(timeFormat, checkTime, time.Local)
 	checkTime = endYear + "-" + _endMonth + "-" + _endDay + " 00:00:00"
-	end, _ := time.ParseInLocation(cfg.TimeFormat, checkTime, time.Local)
+	end, _ := time.ParseInLocation(timeFormat, checkTime, time.Local)
 	if begin.Before(end) {
 		for {
-			now := begin.Format(cfg.TimeFormat)
+			now := begin.Format(timeFormat)
 			nowDate := strings.Split(now, " ")[0]
 			nowArr := strings.Split(nowDate, "-")
 			if begin.Equal(end) {
@@ -231,134 +233,7 @@ func changeToLunchTime(beginTime int, endTime int, beginHour string, beginMinute
 
 //isSameDay 判斷二個時間區間是否為同一天
 func isSameDay(pc *beans.Punchclock) bool {
-	begin := pc.GetBegin().GetYear() + pc.GetBegin().GetMonth() + pc.GetBegin().GetDay()
-	end := pc.GetEnd().GetYear() + pc.GetEnd().GetMonth() + pc.GetEnd().GetDay()
+	begin := pc.Begin.Year + pc.Begin.Month + pc.Begin.Day
+	end := pc.End.Year + pc.End.Month + pc.End.Day
 	return begin == end
-}
-
-//GetEmployeeOnChain 取鏈上取得員工資料
-func GetEmployeeOnChain(c *gin.Context) {
-	params := &beans.EmployeeOnChain{}
-	getParams(c, params)
-	id := params.GetIdentify()
-	empolyee := doGetEmployeeOnChain(id)
-	c.JSON(http.StatusOK, empolyee)
-}
-
-//doGetEmployeeOnChain 執行從鏈上取得員工資料
-func doGetEmployeeOnChain(id string) *beans.GetEmployee {
-	url := cfg.Hyperledger.Host + "/api/Employee/" + id
-	empolyee := &beans.GetEmployee{}
-	getChainParams(url, []byte{}, "GET", empolyee)
-	return empolyee
-}
-
-//AddEmployeeOnChain 追加鏈上員工資料
-func AddEmployeeOnChain(c *gin.Context) {
-	params := &beans.EmployeeOnChain{}
-	getParams(c, params)
-	empolyee := doAddEmployeeOnChain(params)
-	c.JSON(http.StatusOK, &empolyee)
-}
-
-//doAddEmployeeOnChain 執行新增員工到鏈上
-func doAddEmployeeOnChain(params *beans.EmployeeOnChain) *beans.GetEmployee {
-	params.Class = "com.taipay.network.Employee"
-	url := cfg.Hyperledger.Host + "/api/Employee/"
-	jsonParams, err := json.Marshal(params)
-	if err != nil {
-		log.Println(err)
-	}
-	empolyee := &beans.GetEmployee{}
-	getChainParams(url, jsonParams, "POST", empolyee)
-	return empolyee
-}
-
-//AddPunchclockOnChain 寫入員工卡鐘資料
-func AddPunchclockOnChain(c *gin.Context) {
-	params := &beans.PunchclockOnChain{}
-	getParams(c, params)
-	punchclock := doAddPunchclockOnChain(params)
-	c.JSON(200, &punchclock)
-}
-
-//GetPunchclockOnChain 取鏈上取得打卡資料
-func GetPunchclockOnChain(c *gin.Context) {
-	params := &beans.PunchclockOnChain{}
-	getParams(c, params)
-	id := params.GetID()
-	punchclock := doGetPunchclockOnChain(id)
-	c.JSON(http.StatusOK, punchclock)
-}
-
-//doGetPunchclockOnChain 執行從鏈上取得打卡資料
-func doGetPunchclockOnChain(id string) *beans.GetPunchclock {
-	url := cfg.Hyperledger.Host + "/api/Punchclock/" + id
-	punchclock := &beans.GetPunchclock{}
-	getChainParams(url, []byte{}, "GET", punchclock)
-	return punchclock
-}
-
-//doAddPunchclockOnChain
-func doAddPunchclockOnChain(params *beans.PunchclockOnChain) *beans.GetPunchclock {
-	params.Class = "com.taipay.network.Punchclock"
-	url := cfg.Hyperledger.Host + "/api/Punchclock/"
-	jsonParams, err := json.Marshal(params)
-	if err != nil {
-		log.Panicln(err)
-	}
-	punchclock := &beans.GetPunchclock{}
-	getChainParams(url, jsonParams, "POST", punchclock)
-	return punchclock
-}
-
-//UploadDailyPunchclockData 將每天員工打卡資料上鏈
-func UploadDailyPunchclockData(c *gin.Context) {
-	params := &beans.DailyPunchclockData{}
-	getParams(c, params)
-	id := params.GetEmployee().GetIdentify()
-	employee := doGetEmployeeOnChain(id)
-	if employee.GetError() != nil {
-		employee = doAddEmployeeOnChain(params.GetEmployee())
-		if employee.GetError() != nil {
-			log.Panicln(employee.GetError().GetMessage())
-			return
-		}
-	}
-	dailyPunchclockData := combinDailyPunchData(params)
-	result := doAddPunchclockOnChain(dailyPunchclockData)
-	c.JSON(200, &result)
-}
-
-//combinDailyPunchData 合併需上傳之打卡記錄
-func combinDailyPunchData(params *beans.DailyPunchclockData) *beans.PunchclockOnChain {
-	year := params.GetPunchclock().GetBegin().GetYear()
-	month := params.GetPunchclock().GetBegin().GetMonth()
-	day := params.GetPunchclock().GetBegin().GetDay()
-	identify := params.GetEmployee().GetIdentify()
-	dailyPunchclockData := &beans.PunchclockOnChain{}
-	dailyPunchclockData.ID = getDailyPunchclockID()
-	dailyPunchclockData.OnWorkDate = year + "-" + month + "-" + day
-	dailyPunchclockData.OnWorkTime = params.GetPunchclock().GetBegin().GetHour() + ":" + params.GetPunchclock().GetBegin().GetMinute()
-	dailyPunchclockData.OffWorkTime = params.GetPunchclock().GetEnd().GetHour() + ":" + params.GetPunchclock().GetEnd().GetMinute()
-	diffDay, diffHour, diffMinute := calcLeaveScope(params.GetPunchclock())
-	if diffDay > 0 {
-		diffHour = diffHour + diffDay*8
-	}
-	dailyPunchclockData.WorkTimes = strconv.Itoa(diffHour) + " Hours " + strconv.Itoa(diffMinute) + " Minutes"
-	dailyPunchclockData.Employee = identify
-	return dailyPunchclockData
-}
-
-//getDailyPunchclockID 取得打卡記錄上鏈用ID
-func getDailyPunchclockID() string {
-	id := uuid.Must(uuid.NewV4()).String()
-	for {
-		punchclock := doGetPunchclockOnChain(id)
-		if punchclock.GetError() != nil {
-			break
-		}
-		id = uuid.Must(uuid.NewV4()).String()
-	}
-	return id
 }

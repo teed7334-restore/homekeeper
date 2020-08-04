@@ -1,17 +1,17 @@
 package route
 
 import (
+	"os"
+
 	"github.com/teed7334-restore/homekeeper/controllers"
-	"github.com/teed7334-restore/homekeeper/env"
 
 	"github.com/gin-gonic/gin"
 )
 
-var cfg = env.GetEnv()
-
 //API Restful路由
 func API() *gin.Engine {
-	gin.SetMode(cfg.Env)
+	env := os.Getenv("env")
+	gin.SetMode(env)
 	route := gin.Default()
 	route.POST("/Mail/SendMail", controllers.SendMail)
 	route.POST("/Redis/Get", controllers.GetRedis)
@@ -28,10 +28,5 @@ func API() *gin.Engine {
 	route.POST("/Redis/LRange", controllers.LRangeRedis)
 	route.POST("/PunchClock/CalcTime", controllers.CalcTime)
 	route.POST("/PunchClock/ResetAllUseMinute", controllers.ResetAllUseMinute)
-	route.POST("/PunchClock/GetEmployeeOnChain", controllers.GetEmployeeOnChain)
-	route.POST("/PunchClock/AddEmployeeOnChain", controllers.AddEmployeeOnChain)
-	route.POST("/PunchClock/GetPunchclockOnChain", controllers.GetPunchclockOnChain)
-	route.POST("/PunchClock/AddPunchclockOnChain", controllers.AddPunchclockOnChain)
-	route.POST("/PunchClock/UploadDailyPunchclockData", controllers.UploadDailyPunchclockData)
 	return route
 }

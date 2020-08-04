@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github.com/teed7334-restore/homekeeper/env"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/teed7334-restore/homekeeper/route"
 )
-
-var cfg = env.GetEnv()
 
 func main() {
 	webService()

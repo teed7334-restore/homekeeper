@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package beans;
-
-message Redis {
-    string Key = 1; //`json:"key,omitempty"`
-    string Value = 2; //`json:"value,omitempty"`
-    string Hkey = 3; //`json:"hkey,omitempty"`
-}
