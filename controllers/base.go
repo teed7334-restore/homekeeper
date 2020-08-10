@@ -2,13 +2,11 @@ package controllers
 
 import (
 	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/teed7334-restore/homekeeper/beans"
 )
 
 //GetURL 透過HTTP GET取得網頁資料
@@ -47,25 +45,5 @@ func getParams(c *gin.Context, params interface{}) {
 	err := c.BindJSON(params)
 	if err != nil {
 		log.Println(err)
-	}
-}
-
-//getChainParams 取得Hyperledger鏈上傳來的資料
-func getChainParams(url string, params []byte, action string, resultObject *beans.GetEmployee) {
-	result := []byte{}
-	switch action {
-	case "GET":
-		result = GetURL(url)
-	case "POST":
-		result = PostURL(url, params)
-	}
-	err := json.Unmarshal(result, resultObject)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if resultObject.Error.Message != "" && resultObject.Error.StatusCode != "404" {
-		log.Println(resultObject.Error.Message)
-		return
 	}
 }
